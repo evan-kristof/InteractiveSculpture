@@ -15,9 +15,6 @@
 #include "config.h"
 
 //DEFINE VARIABLES
-int maplow = 150;                                    //the lowest the map function will go (may help with delays)
-float negfloor = -5;                                 //minimum amount of force before led will activate for tension
-float pfloor = 5;                                    //minimum amount of force before led will activate for compression
 HX711 load_cell (LOADCELL_DT_PIN, LOADCELL_SCK_PIN); //HX711 LOAD CELL
 
 
@@ -25,8 +22,10 @@ HX711 load_cell (LOADCELL_DT_PIN, LOADCELL_SCK_PIN); //HX711 LOAD CELL
 void setup() {
     Serial.begin(9600);                              //START SERIAL MONITOR
     delay(50);                                       //50 MILLISECOND DELAY
-    pinMode(6, OUTPUT);                              //Output for the LED lights
-    pinMode(7, OUTPUT);                              //Output for the LED lights
+    
+    pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
+    pinMode(GREEN_LED, OUTPUT);                      //Output for the LED lights
+    pinMode(BLUE_LED, OUTPUT);                       //Output for the LED lights
     
     Serial.println("Before setting up the scale:");
     Serial.print("read: \t\t");
@@ -64,7 +63,7 @@ void setup() {
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 void loop() {
-    load_cell.set_scale(CALIBRATION_FACTOR);        //Adjust to this calibration factor for scale 1
+    load_cell.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
     Serial.print("sensor readings:\t");
     Serial.print(load_cell.get_units(), 1);  
     Serial.print("      ");
@@ -74,30 +73,39 @@ void loop() {
     Serial.println();
     delay(1000);
   
-    int ledbrightness;                              //Interger for the brightness of the LED lights      
+    int ledbrightness;                               //Interger for the brightness of the LED lights      
 
-    if (load_cell.get_units() < negfloor){           // testing if sensor 1 is in tension
-      ledbrightness = ((map(load_cell.get_units(), MIN_LB, 0, maplow, 255))*-1); //Convert the reading from the scale into a pwm output
-      analogWrite(6, ledbrightness);
-      analogWrite(7, 0);
+    if (load_cell.get_units() < NEGATIVE_FLOOR){     // testing if sensor 1 is in tension
+      ledbrightness = ((map(load_cell.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
+      analogWrite(GREEN_LED, ledbrightness);
+      analogWrite(RED_LED, 0);
       Serial.print("compression1");
       Serial.print("      ");
       Serial.print(ledbrightness);
       Serial.println();
       delay(DELAY);
-    }else if (load_cell.get_units() > pfloor){     //testing for compression in sensor 1
-      analogWrite(6, 0);
-      ledbrightness = map(load_cell.get_units(), 0, MAX_LB, maplow, 255);
-      analogWrite(7, ledbrightness);
+    }else if (load_cell.get_units() > POSITIVE_FLOOR){     //testing for compression in sensor 1
+      analogWrite(GREEN_LED, 0);
+      ledbrightness = map(load_cell.get_units(), 0, MAX_LB, MAP_LOW, 255);
+      analogWrite(RED_LED, ledbrightness);
       Serial.print("tension1");
       Serial.print("      ");
       Serial.print(ledbrightness);
       Serial.println(); 
       delay(DELAY);
-    }else if (negfloor <=  load_cell.get_units() <= pfloor){
-      analogWrite(6, 0);
-      analogWrite(7, 0);
+    }else if (NEGATIVE_FLOOR <= load_cell.get_units() <= POSITIVE_FLOOR){
+      analogWrite(GREEN_LED, 0);
+      analogWrite(RED_LED, 0);
       Serial.println("no load detected sensor 1");
       delay(DELAY);
     }
 }
+
+
+
+/* LIBRARIES USED & TUTORIALS:
+ * 
+ *  HX711: https://www.arduino.cc/reference/en/libraries/hx711-arduino-library/
+ *  LOAD CELL AMPLIFIER HX711: https://learn.sparkfun.com/tutorials/load-cell-amplifier-hx711-breakout-hookup-guide/all
+ * 
+*/

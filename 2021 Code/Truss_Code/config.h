@@ -12,7 +12,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-//HX711 LOAD CELL PINS DECLARATION
+//DEFINE HX711 LOAD CELL PINS
 #define LOADCELL_SCK_PIN 2
 #define LOADCELL_DT_PIN 3
 
@@ -23,7 +23,18 @@
 #define DELAY 30 
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
-#define MIN_LB  -150  //largest tension load expected on a sensor
-#define MAX_LB 150    //largest compressive load expected on sensor
+#define MIN_LB -150         //largest tension load expected on a sensor
+#define MAX_LB 150          //largest compressive load expected on sensor
+
+//MINIMUM AMOUNT OF LBS TO ACTIVATE LEDS
+#define MAP_LOW 150          //the lowest the map function will go (may help with delays)
+#define NEGATIVE_FLOOR -5    //minimum amount of force before led will activate for tension
+#define POSITIVE_FLOOR 5     //minimum amount of force before led will activate for compression
+
+//DEFINE PINS FOR LED
+#define RED_LED 6           //TENSION
+#define GREEN_LED 7         //COMPRESSION
+#define BLUE_LED 8
+
 
 #endif
