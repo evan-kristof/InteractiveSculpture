@@ -104,7 +104,8 @@ void loop() {
   
 
 
-/* LIBRARIES USED & TUTORIALS:
+
+/* LIBRARIES USED & TUTORIALS
  * 
  *  HX711: https://www.arduino.cc/reference/en/libraries/hx711-arduino-library/
  *  LOAD CELL AMPLIFIER HX711: https://learn.sparkfun.com/tutorials/load-cell-amplifier-hx711-breakout-hookup-guide/all
