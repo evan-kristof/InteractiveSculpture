@@ -20,16 +20,16 @@
 #define CALIBRATION_FACTOR -7050
 
 //DELAY CODE (IN MILLISECONDS)
-#define DELAY 30 
+#define DELAY 0 
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
-#define MIN_LB -150         //largest tension load expected on a sensor
-#define MAX_LB 150          //largest compressive load expected on sensor
+#define MIN_LB -50         //largest tension load expected on a sensor
+#define MAX_LB 50          //largest compressive load expected on sensor
 
 //MINIMUM AMOUNT OF LBS TO ACTIVATE LEDS
-#define MAP_LOW 150          //the lowest the map function will go (may help with delays)
-#define NEGATIVE_FLOOR -5    //minimum amount of force before led will activate for tension
-#define POSITIVE_FLOOR 5     //minimum amount of force before led will activate for compression
+#define MAP_LOW 30          //the lowest the map function will go (may help with delays)
+#define NEGATIVE_FLOOR -1    //minimum amount of force before led will activate for tension
+#define POSITIVE_FLOOR 1     //minimum amount of force before led will activate for compression
 
 //DEFINE PINS FOR LED
 #define RED_LED 6           //TENSION

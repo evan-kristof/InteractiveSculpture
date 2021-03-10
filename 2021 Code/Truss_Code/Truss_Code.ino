@@ -1,6 +1,6 @@
 /* Interactive Sculpture Truss Code
  * This file contains the main functions to exectue the code. [Setup Arduino -> setup() function, Loop code -> loop() function]
- * Pin values are declared in the config.h folder. If you wish to modify the pins/circuitry, ensure you updae the values in the config.h file for the code to work properly
+ * Pin values are declared in the config.h folder. If you wish to modify the pins/circuitry, ensure you update the values in the config.h file for the code to work properly
  * 
  * Truss_Code.ino
  * 
@@ -21,7 +21,7 @@ HX711 load_cell (LOADCELL_DT_PIN, LOADCELL_SCK_PIN); //HX711 LOAD CELL
 //THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
 void setup() {
     Serial.begin(9600);                              //START SERIAL MONITOR
-    delay(50);                                       //50 MILLISECOND DELAY
+    //delay(50);                                       //50 MILLISECOND DELAY
     
     pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
     pinMode(GREEN_LED, OUTPUT);                      //Output for the LED lights
@@ -31,7 +31,7 @@ void setup() {
     Serial.print("read: \t\t");
     Serial.println(load_cell.read());                // print a raw reading from the ADC for scale 1
     Serial.print("read average: \t\t");
-    Serial.println(load_cell.read_average(20));      // print the average of 20 readings from the ADC for scale 1
+    Serial.println(load_cell.read_average(5));      // print the average of 5 readings from the ADC for scale 1
     Serial.println("test");
     Serial.print("get value: \t\t");
     Serial.println(load_cell.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight (not set yet) for scale 1
@@ -48,7 +48,7 @@ void setup() {
   
     Serial.print("read average: \t\t");
     Serial.println(load_cell.read_average(20));      // print the average of 20 readings from the ADC for scale 1
-    delay(1000);
+    //delay(1000);
   
     Serial.print("get value: \t\t");
     Serial.println(load_cell.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
@@ -57,7 +57,7 @@ void setup() {
     Serial.println(load_cell.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
     Serial.println("Readings:");                     //Serial monitor readings
   
-    delay(1000);                                     //Delay in serialprint reading of 500 milliseconds
+    //delay(1000);                                     //Delay in serialprint reading of 500 milliseconds
 }
 
 
@@ -71,9 +71,9 @@ void loop() {
     Serial.println(load_cell.get_units(10), 1);
     Serial.println();
     Serial.println();
-    delay(1000);
+    //delay(1000);
   
-    int ledbrightness;                               //Interger for the brightness of the LED lights      
+    int ledbrightness;                               //Integer for the brightness of the LED lights      
 
     if (load_cell.get_units() < NEGATIVE_FLOOR){     // testing if sensor 1 is in tension
       ledbrightness = ((map(load_cell.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
