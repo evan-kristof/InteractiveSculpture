@@ -31,7 +31,7 @@ void setup() {
     Serial.print("read: \t\t");
     Serial.println(load_cell.read());                // print a raw reading from the ADC for scale 1
     Serial.print("read average: \t\t");
-    Serial.println(load_cell.read_average(5));      // print the average of 5 readings from the ADC for scale 1
+    Serial.println(load_cell.read_average(5));       // print the average of 5 readings from the ADC for scale 1
     Serial.println("test");
     Serial.print("get value: \t\t");
     Serial.println(load_cell.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight (not set yet) for scale 1

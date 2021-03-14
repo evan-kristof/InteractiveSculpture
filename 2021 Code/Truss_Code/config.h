@@ -27,7 +27,7 @@
 #define MAX_LB 50          //largest compressive load expected on sensor
 
 //MINIMUM AMOUNT OF LBS TO ACTIVATE LEDS
-#define MAP_LOW 30          //the lowest the map function will go (may help with delays)
+#define MAP_LOW 30           //the lowest the map function will go (may help with delays)
 #define NEGATIVE_FLOOR -1    //minimum amount of force before led will activate for tension
 #define POSITIVE_FLOOR 1     //minimum amount of force before led will activate for compression
 
