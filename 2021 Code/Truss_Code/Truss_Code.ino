@@ -60,6 +60,13 @@ void setup() {
     //delay(1000);                                     //Delay in serialprint reading of 500 milliseconds
 }
 
+int CALIBRATION_FACTOR = -7050;
+int MIN_LB = -10;
+int MAX_LB = 10;
+int MAP_LOW = 30;
+int NEGATIVE_FLOOR = -1;
+int POSITIVE_FLOOR = 1; 
+
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 void loop() {
@@ -69,9 +76,7 @@ void loop() {
     Serial.print("      ");
     Serial.print("\t| average:\t");
     Serial.println(load_cell.get_units(10), 1);
-    Serial.println();
-    Serial.println();
-    //delay(1000);
+     //delay(1000);
   
     int ledbrightness;                               //Integer for the brightness of the LED lights      
 
@@ -79,30 +84,19 @@ void loop() {
       ledbrightness = ((map(load_cell.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
       analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
-      Serial.print("compression1");
-      Serial.print("      ");
-      Serial.print(ledbrightness);
-      Serial.println();
-      delay(DELAY);
+      //delay(DELAY);
     }else if (load_cell.get_units() > POSITIVE_FLOOR){     //testing for compression in sensor 1
       analogWrite(GREEN_LED, 0);
       ledbrightness = map(load_cell.get_units(), 0, MAX_LB, MAP_LOW, 255);
       analogWrite(RED_LED, ledbrightness);
-      Serial.print("tension1");
-      Serial.print("      ");
-      Serial.print(ledbrightness);
-      Serial.println(); 
-      delay(DELAY);
+      //delay(DELAY);
     }else if (NEGATIVE_FLOOR <= load_cell.get_units() <= POSITIVE_FLOOR){
       analogWrite(GREEN_LED, 0);
       analogWrite(RED_LED, 0);
       Serial.println("no load detected sensor 1");
-      delay(DELAY);
+      //delay(DELAY);
     }
 }
-
-  
-
 
 
 /* LIBRARIES USED & TUTORIALS
