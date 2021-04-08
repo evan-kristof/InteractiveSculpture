@@ -37,7 +37,7 @@ void setup() {
     Serial.println(load_cell.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight (not set yet) for scale 1
   
     Serial.print("get units: \t\t");
-    Serial.println(load_cell.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
+    Serial.println(load_cell.get_units(5),1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
     
     load_cell.set_scale(2280.f);                     // this value is obtained by calibrating the scale with known weights; see the README for details
     load_cell.tare();                                // reset the scale to 0 for scale 1
@@ -60,17 +60,18 @@ void setup() {
     //delay(1000);                                     //Delay in serialprint reading of 500 milliseconds
 }
 
-int CALIBRATION_FACTOR = -7050;
+int CAL_FACT = -7050;
 int MIN_LB = -10;
 int MAX_LB = 10;
 int MAP_LOW = 30;
-int NEGATIVE_FLOOR = -1;
-int POSITIVE_FLOOR = 1; 
+int NEG_FLR = -1; // Negative floor, minimum amount of force before led will activate for tension
+int POS_FLR = 1;  // Positive floor, minimum amount of force before led will activate for compression
+
 
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 void loop() {
-    load_cell.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
+    load_cell.set_scale(CAL_FACT);         //Adjust to this calibration factor for scale 1
     Serial.print("sensor readings:\t");
     Serial.print(load_cell.get_units(), 1);  
     Serial.print("      ");
@@ -79,22 +80,20 @@ void loop() {
      //delay(1000);
   
     int ledbrightness;                               //Integer for the brightness of the LED lights      
-
-    if (load_cell.get_units() < NEGATIVE_FLOOR){     // testing if sensor 1 is in tension
-      ledbrightness = ((map(load_cell.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
+    float cell = load_cell.get_units(5);
+    
+    if (cell < NEG_FLR){     // testing for tension in load cell
+      ledbrightness = ((map(cell, MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
       analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
-      //delay(DELAY);
-    }else if (load_cell.get_units() > POSITIVE_FLOOR){     //testing for compression in sensor 1
+    }else if (cell > POS_FLR){     //testing for compression in load cell
       analogWrite(GREEN_LED, 0);
-      ledbrightness = map(load_cell.get_units(), 0, MAX_LB, MAP_LOW, 255);
+      ledbrightness = map(cell, 0, MAX_LB, MAP_LOW, 255);
       analogWrite(RED_LED, ledbrightness);
-      //delay(DELAY);
-    }else if (NEGATIVE_FLOOR <= load_cell.get_units() <= POSITIVE_FLOOR){
+    }else if (NEG_FLR <= cell <= POS_FLR){
       analogWrite(GREEN_LED, 0);
       analogWrite(RED_LED, 0);
-      Serial.println("no load detected sensor 1");
-      //delay(DELAY);
+      //Serial.println("no load detected sensor 1");
     }
 }
 
