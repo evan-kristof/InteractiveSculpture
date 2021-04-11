@@ -60,14 +60,6 @@ void setup() {
     //delay(1000);                                     //Delay in serialprint reading of 500 milliseconds
 }
 
-int CAL_FACT = -7050;
-int MIN_LB = -10;
-int MAX_LB = 10;
-int MAP_LOW = 30;
-int NEG_FLR = -1; // Negative floor, minimum amount of force before led will activate for tension
-int POS_FLR = 1;  // Positive floor, minimum amount of force before led will activate for compression
-
-
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 void loop() {
