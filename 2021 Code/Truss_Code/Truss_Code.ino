@@ -20,7 +20,7 @@ HX711 load_cellb (LOADCELLb_DT_PIN, LOADCELLb_SCK_PIN); //HX711 LOAD CELL b
 HX711 load_cellc (LOADCELLc_DT_PIN, LOADCELLc_SCK_PIN); //HX711 LOAD CELL c
 
 
-void setup_function(lc) {
+void setup_function(HX711 lc) {
     Serial.begin(9600);                              //START SERIAL MONITOR
     
     pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
@@ -66,7 +66,7 @@ void setup() {
 }
 
 
-void set_calibration(lc){
+void set_calibration(HX711 lc){
     lc.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
     Serial.print("sensor readings:\t");
     Serial.print(lc.get_units(), 1);  
@@ -109,13 +109,13 @@ void read_send(HX711 lc){
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 
 void loop() {
-    set_calibration(HX711 load_cella);
-    set_calibration(HX711 load_cellb);
-    set_calibration(HX711 load_cellc);
+    set_calibration(load_cella);
+    set_calibration(load_cellb);
+    set_calibration(load_cellc);
 
-    read_send(HX711 load_cella);
-    read_send(HX711 load_cellb);
-    read_send(HX711 load_cellc);
+    read_send(load_cella);
+    read_send(load_cellb);
+    read_send(load_cellc);
     }
 /* LIBRARIES USED & TUTORIALS
  * 
