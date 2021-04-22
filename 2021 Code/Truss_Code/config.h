@@ -15,10 +15,10 @@
 //DEFINE HX711 LOAD CELL PINS
 #define LOADCELLa_SCK_PIN 2
 #define LOADCELLa_DT_PIN 3
-#define LOADCELLb_SCK_PIN 4
-#define LOADCELLb_DT_PIN 5
-#define LOADCELLc_SCK_PIN 6
-#define LOADCELLc_DT_PIN 6
+//#define LOADCELLb_SCK_PIN 4
+//#define LOADCELLb_DT_PIN 5
+//#define LOADCELLc_SCK_PIN 6
+//#define LOADCELLc_DT_PIN 6
 
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
 #define CALIBRATION_FACTOR -7050
