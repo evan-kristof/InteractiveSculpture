@@ -39,8 +39,8 @@ void setup_function(HX711 lc) {
     Serial.print("get units: \t\t");
     Serial.println(lc.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
     
-    //lc.set_scale(2280.f);                     // this value is obtained by calibrating the scale with known weights; see the README for details
-    //lc.tare();                                // reset the scale to 0 for scale 1
+    lc.set_scale(2280.f);                     // this value is obtained by calibrating the scale with known weights; see the README for details
+    lc.tare();                                // reset the scale to 0 for scale 1
     
     Serial.println("After setting up the scale:");
   
