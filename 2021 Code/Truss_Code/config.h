@@ -23,8 +23,15 @@
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
 #define CALIBRATION_FACTOR -7050
 
+//BUTTON FUNCTIONALITY
+#define buttonPin 2           // the number of the pushbutton pin
+#define buttonState 0         // variable for reading the pushbutton status
+
 //DELAY CODE (IN MILLISECONDS)
 #define DELAY 0 
+
+//PASSIVE DELAY TIME (MILLISECONDS)
+#define COLLECT_TIME 6000
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
 #define MIN_LB -50         //largest tension load expected on a sensor
