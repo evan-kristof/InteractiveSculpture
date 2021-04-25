@@ -4,7 +4,6 @@
  * config.h
  * 
  * DATE CREAED: 1/29/21 BY OMAR WAKED
- * DATE MODIFIED: 1/29/21 BY OMAR WAKED
  * IMPORTANT: UPDATE THE MODIFIED DATE AND NAME ABOVE 
  * LINK TO CODE ON GITHUB: https://github.com/OmarWaked/InteractiveSculpture.git
 */
@@ -28,7 +27,6 @@
 
 //CALIBRATION BUTTON
 #define buttonPin 2           // the number of the pushbutton pin
-#define buttonState 0         // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
 
 //DELAY CODE (IN MILLISECONDS)
 #define DELAY 0 

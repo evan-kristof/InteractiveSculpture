@@ -5,7 +5,6 @@
  * Truss_Code.ino
  * 
  * DATE CREAED: 1/29/21 BY OMAR WAKED
- * DATE MODIFIED: 1/29/21 BY OMAR WAKED
  * IMPORTANT: UPDATE THE MODIFIED DATE AND NAME ABOVE 
  * LINK TO CODE ON GITHUB: https://github.com/OmarWaked/InteractiveSculpture.git
 */
@@ -16,6 +15,7 @@
 
 //PASSIVE DELAY 
 unsigned long lastUpdate = 0;
+int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
 
 //DEFINE VARIABLES
 HX711 load_cella (LOADCELLa_DT_PIN, LOADCELLa_SCK_PIN); //HX711 LOAD CELL a
@@ -44,7 +44,6 @@ void setup_function(HX711 lc) {
   
     Serial.print("read average: \t\t");
     Serial.println(lc.read_average(20));      // print the average of 20 readings from the ADC for scale 1
-    //delay(1000);
   
     Serial.print("get value: \t\t");
     Serial.println(lc.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
@@ -71,20 +70,19 @@ void setup() {
 }
 
 
-void set_calibration(HX711 lc){
-//   buttonState = digitalRead(buttonPin);
-  //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
-  
-    if (buttonState == HIGH) {                      //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
-          lc.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
-          Serial.print("sensor readings:\t");
-          Serial.print(lc.get_units(), 1);  
-          Serial.print("      ");
-          Serial.print("\t| average:\t");
-          Serial.println(lc.get_units(10), 1);
-          Serial.println();
-          Serial.println();  
-    }
+void set_calibration(HX711 lc){ //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+   buttonState = digitalRead(buttonPin);
+   
+   if (buttonState == HIGH) {                   //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
+      lc.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
+      Serial.print("sensor readings:\t");
+      Serial.print(lc.get_units(), 1);  
+      Serial.print("      ");
+      Serial.print("\t| average:\t");
+      Serial.println(lc.get_units(10), 1);
+      Serial.println();
+      Serial.println();  
+   }
 }
 
 void read_send(HX711 lc){
@@ -131,8 +129,7 @@ void loop() {
 
 void passiveDelay(){
 /*
- * Passive delay
- * if(millis() - lastUpdate >= COLLECT_TIME){
+ * if(millis() - lastUpdate >= COLLECT_TIME){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
  *  lastUpdate = millis(); //update old_time to current millis()
  * }
 */ 
