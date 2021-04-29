@@ -13,14 +13,24 @@
 #define CONFIG_H
 
 //DEFINE HX711 LOAD CELL PINS
-#define LOADCELL_SCK_PIN 2
-#define LOADCELL_DT_PIN 3
+//load cell 1
+#define LOADCELL_SCK_PIN1 2
+#define LOADCELL_DT_PIN1 3
+//load cell 2
+#define LOADCELL_SCK_PIN2 4
+#define LOADCELL_DT_PIN2 5
+//Load cell 3
+#define LOADCELL_SCK_PIN3 6
+#define LOADCELL_DT_PIN3 7
 
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
 #define CALIBRATION_FACTOR -7050
 
 //DELAY CODE (IN MILLISECONDS)
 #define DELAY 0 
+
+//CALIBRATION BUTTON
+#define buttonPin 2           // the pin of the pushbutton
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
 #define MIN_LB -50         //largest tension load expected on a sensor
