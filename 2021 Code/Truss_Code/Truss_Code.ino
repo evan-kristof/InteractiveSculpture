@@ -113,24 +113,29 @@ void read_send(HX711 load_cellX){
     Serial.println();
     
     int ledbrightness;   //Integer for the brightness of the LED lights    
-  
+    float forceC;
+    float forceT;
+      
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing if sensor 1 is in tension
       ledbrightness = ((map(load_cellX.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
+      forceC = (((load_cellX.get_units() - MIN_LB)*(255-MAP_LOW))/((0-MIN_LB)+MAP_LOW));
       analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
       Serial.print("compression1");
       Serial.print("      ");
-      Serial.print(ledbrightness);
-      delay(DELAY);
+      Serial.print(forceC);
+      Serial.print(" lbs");
+      Serial.println(); 
     }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for compression in sensor 1
-      analogWrite(GREEN_LED, 0);
       ledbrightness = map(load_cellX.get_units(), 0, MAX_LB, MAP_LOW, 255);
+      forceT = (((load_cellX.get_units() - 0)*(255-MAP_LOW))/((MAX_LB-0)+MAP_LOW));
       analogWrite(RED_LED, ledbrightness);
+      analogWrite(GREEN_LED, 0);
       Serial.print("tension1");
       Serial.print("      ");
-      Serial.print(ledbrightness);
+      Serial.print(forceT);
+      Serial.print(" lbs");
       Serial.println(); 
-      delay(DELAY);
     }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
       analogWrite(GREEN_LED, 0);
       analogWrite(RED_LED, 0);
