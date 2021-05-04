@@ -15,117 +15,136 @@
 #include "config.h"
 
 //DEFINE VARIABLES
-HX711 load_cella(LOADCELLa_DT_PIN, LOADCELLa_SCK_PIN); //HX711 LOAD CELL a
-//HX711 load_cellb(LOADCELLb_DT_PIN, LOADCELLb_SCK_PIN); //HX711 LOAD CELL b
-//HX711 load_cellc(LOADCELLc_DT_PIN, LOADCELLc_SCK_PIN); //HX711 LOAD CELL c
+//load cells
+HX711 load_cell1 (LOADCELL_DT_PIN1, LOADCELL_SCK_PIN1);
+HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
+HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
+//other variables
+unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
+int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
 
-// THE 'start' FUNCTION STARTS COMMUNICATION WITH THE LOAD CELLS AND LEDs. IT RUNS ONCE FOR
-// EACH LOAD CELL AND IS INITIATED BY THE 'setup' FUNCTION.
- 
-void start(HX711 lc) {
+
+//THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
+void setup() {
     Serial.begin(9600);                              //START SERIAL MONITOR
+    //delay(50);                                       //50 MILLISECOND DELAY
     
     pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
     pinMode(GREEN_LED, OUTPUT);                      //Output for the LED lights
     pinMode(BLUE_LED, OUTPUT);                       //Output for the LED lights
+    setupCell(load_cell1);
+    load_cell1.tare();                                // reset the scale to 0 for scale 1
+
+}
+
+
+//THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
+void loop() {
+    read_send(load_cell1);
+}
+
+//intialize load cells 
+void setupCell(HX711 load_cellX){
+    Serial.println("Begin:   ");
+    Serial.print("read raw data once: \t\t");
+    Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
+    Serial.print("average of 5 readings : \t\t");
+    Serial.println(load_cellX.read_average(5));       // print the average of 5 readings from the ADC for scale 1
+    Serial.println("test before calibration");
+    Serial.print("read force: \t\t");
+    Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
     
-    Serial.println("Before setting up the scale:");
+    load_cellX.set_scale(SCALE);                     // this value is obtained by calibrating the scale with known weights; see the README for details
+    Serial.println("test after calibration:");
+  
     Serial.print("read: \t\t");
-    Serial.println(lc.read());                // print a raw reading from the ADC 
+    Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
+  
     Serial.print("read average: \t\t");
-    Serial.println(lc.read_average(5));       // print the average of 5 readings from the ADC 
-    Serial.println("test");
+    Serial.println(load_cellX.read_average(20));      // print the average of 20 readings from the ADC for scale 1
+
     Serial.print("get value: \t\t");
-    Serial.println(lc.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight (not set yet)
+    Serial.println(load_cellX.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
   
     Serial.print("get units: \t\t");
-    Serial.println(lc.get_units(5));       // print the average of 5 readings from the ADC minus tare weight 
-    
-    lc.set_scale(2280.f);                     // this value is obtained by calibrating the scale with known weights; see the README for details
-    lc.tare();                                // reset the scale to 0 for scale 1
-    
-    Serial.println("After setting up the scale:");
-  
-    Serial.print("read: \t\t");
-    Serial.println(lc.read());                // print a raw reading from the ADC for scale 1
-  
-    Serial.print("read average: \t\t");
-    Serial.println(lc.read_average(5));      // print the average of 20 readings from the ADC for scale 1
-    
-    Serial.print("get value: \t\t");
-    Serial.println(lc.get_value(5), 1);          // print the average of 5 readings from the ADC minus the tare weight, set with tare()
-  
-    Serial.print("get units: \t\t");
-    Serial.println(lc.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
-    Serial.println("Readings:");              //Serial monitor readings
+    Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
 }
 
-void set_calibration(HX711 lc){
-    lc.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
-    Serial.print("sensor readings:\t");
-    Serial.print(lc.get_units(), 1);  
-    Serial.print("      ");
-    Serial.print("\t| average:\t");
-    Serial.println(lc.get_units(10), 1);
-    Serial.println();
-    Serial.println();  
-}
-
-// THE 'setup' FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP. IT IS A REQUIRED PART OF 
-// ALL ARDUINO SKETCHES. IN THIS CASE IT RUNS THE 'start' AND 'set_calibration' FUNCTIONS FOR
-// EACH LOAD CELL IN THE TRUSS SCULPTURE.
- 
-void setup() {
-    start(load_cella);
-    //start(load_cellb);
-    //start(load_cellc);
-
-    set_calibration(load_cella);
-    //set_calibration(load_cellb);
-    //set_calibration(load_cellc);
-}
-
-// THE 'read_send' FUNCTION READS THE INPUT FROM THE LOAD CELL AND DECIDES WHETHER OR NOT 
-// IT IS IN TENSION, COMPRESSION, OR NEITHER. THEN IT LIGHTS THE APPROPRIATE LED, OR DOES
-// NOTHING AND STARTS OVER TO CHECK THE LOAD CELL AGAIN. THIS FUNCTION IS INIATED BY THE
-// 'loop' FUNCTION AND THEREFORE RUNS CONINTUOUSLY AS LONG THE ARDUINO IS POWERED ON. 
-
+//read inputs from load cell and control LEDs accordinly 
+void read_send(HX711 load_cellX){
+//    load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
+//    Serial.print("sensor readings:\t");
+//    Serial.print(load_cellX.get_units(), 1);  
+//    Serial.print("      ");
+//    Serial.print("\t| average:\t");
+//    Serial.println(load_cellX.get_units(10), 1);
+//    Serial.println();
+//    Serial.println();
     
-void read_send(HX711 lc){
-    
-    int ledbrightness;                               //Integer for the brightness of the LED lights      
-
-    if (lc.get_units() < NEGATIVE_FLOOR){     // testing if sensor 1 is in tension
-      ledbrightness = ((map(lc.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
+    int ledbrightness;   //Integer for the brightness of the LED lights    
+    float forceC;
+    float forceT;
+    load_cellX.set_scale(SCALE);  
+    if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
+      ledbrightness = ((map(load_cellX.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
+      forceC = load_cellX.get_units();
       analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
-      Serial.print("compression1");
-      Serial.print("      ");
-      Serial.print(ledbrightness);
-      Serial.println();
-    }else if (lc.get_units() > POSITIVE_FLOOR){     //testing for compression in sensor 1
-      ledbrightness = map(lc.get_units(), 0, MAX_LB, MAP_LOW, 255);
-      analogWrite(RED_LED, ledbrightness);
-      analogWrite(GREEN_LED, 0);
-      Serial.print("tension1");
-      Serial.print("      ");
+      Serial.print("compression1: ");
+      Serial.print(forceC);
+      Serial.println(" lbs");
+      Serial.print("LED output: ");
       Serial.print(ledbrightness);
       Serial.println(); 
-    }else if (NEGATIVE_FLOOR <= lc.get_units() <= POSITIVE_FLOOR){
+    }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for tension in sensor 1
+      ledbrightness = map(load_cellX.get_units(), 0, MAX_LB, MAP_LOW, 255);
+      forceT = load_cellX.get_units();
+      analogWrite(RED_LED, ledbrightness);
+      analogWrite(GREEN_LED, 0);
+      Serial.print("tension1: ");
+      Serial.print(forceT);
+      Serial.println(" lbs");
+      Serial.print("LED output: ");
+      Serial.print(ledbrightness);
+      Serial.println(); 
+    }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
       analogWrite(GREEN_LED, 0);
       analogWrite(RED_LED, 0);
       Serial.println("no load detected sensor 1");
+      delay(DELAY);
     }
 }
-
-// THE 'loop' FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP. IT IS A REQUIRED PART OF 
-// ALL ARDUINO SKETCHES. IT CHECKS EACH LOAD CELL FOR TENSION AND COMPRESSION CONSECUTIVELY.
-
-void loop() {
-    read_send(load_cella);
-    //read_send(load_cellb);
-    //read_send(load_cellc);
+  
+void set_calibration(HX711 load_cellX){ //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+   buttonState = digitalRead(buttonPin);
+   
+   if (buttonState == HIGH) {                   //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
+      load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
+      Serial.print("sensor readings:\t");
+      Serial.print(load_cellX.get_units(), 1);  
+      Serial.print("      ");
+      Serial.print("\t| average:\t");
+      Serial.println(load_cellX.get_units(10), 1);
+      Serial.println();
+      Serial.println();  
+   }
 }
+
+void passiveDelay(int passiveDelayTime){
+  if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
+    lastUpdate = millis(); //update old_time to current millis()
+  }
+}
+
+void lcd(){
+/* TODO:
+ * Identify LCD pins & wiring
+ * Setup LCD library
+ * Setup LCD as an output jn the setup function
+*/
+}
+
+
 /* LIBRARIES USED & TUTORIALS
  * 
  *  HX711: https://www.arduino.cc/reference/en/libraries/hx711-arduino-library/
