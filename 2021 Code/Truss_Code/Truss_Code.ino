@@ -22,73 +22,49 @@ HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
 int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
-
+float massReading = 0;
+float SCALE = 19590.0;
 
 //THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
 void setup() {
     Serial.begin(9600);                              //START SERIAL MONITOR
-    //delay(50);                                       //50 MILLISECOND DELAY
-    
     pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
     pinMode(GREEN_LED, OUTPUT);                      //Output for the LED lights
     pinMode(BLUE_LED, OUTPUT);                       //Output for the LED lights
     setupCell(load_cell1);
-    load_cell1.tare();                                // reset the scale to 0 for scale 1
-
+    load_cell1.tare();                               // reset the scale to 0 for scale 1
 }
-
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 void loop() {
+    //set_calibration(load_cell1);
     read_send(load_cell1);
 }
 
 //intialize load cells 
 void setupCell(HX711 load_cellX){
-    Serial.println("Begin:   ");
-    Serial.print("read raw data once: \t\t");
-    Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
-    Serial.print("average of 5 readings : \t\t");
-    Serial.println(load_cellX.read_average(5));       // print the average of 5 readings from the ADC for scale 1
-    Serial.println("test before calibration");
-    Serial.print("read force: \t\t");
-    Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
-    
-    load_cellX.set_scale(SCALE);                     // this value is obtained by calibrating the scale with known weights; see the README for details
+    load_cellX.set_scale(SCALE);
     Serial.println("test after calibration:");
-  
     Serial.print("read: \t\t");
     Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
-  
     Serial.print("read average: \t\t");
     Serial.println(load_cellX.read_average(20));      // print the average of 20 readings from the ADC for scale 1
-
     Serial.print("get value: \t\t");
     Serial.println(load_cellX.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
-  
     Serial.print("get units: \t\t");
     Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
 }
 
 //read inputs from load cell and control LEDs accordinly 
 void read_send(HX711 load_cellX){
-//    load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
-//    Serial.print("sensor readings:\t");
-//    Serial.print(load_cellX.get_units(), 1);  
-//    Serial.print("      ");
-//    Serial.print("\t| average:\t");
-//    Serial.println(load_cellX.get_units(10), 1);
-//    Serial.println();
-//    Serial.println();
-    
-    int ledbrightness;   //Integer for the brightness of the LED lights    
+    load_cellX.set_scale(SCALE);   // this value is obtained by calibrating the scale with known weights; see the README for details
+    int ledbrightness;             //Integer for the brightness of the LED lights    
     float forceC;
     float forceT;
-    load_cellX.set_scale(SCALE);  
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
-      ledbrightness = map(load_cellX.get_units(), MIN_LB, 0, MAP_LOW, 255); //Convert the reading from the scale into a pwm output
+      ledbrightness = (map(load_cellX.get_units(), MIN_LB, 0, 255, MAP_LOW))*-1; //Convert the reading from the scale into a pwm output
       forceC = load_cellX.get_units();
-      analogWrite(GREEN_LED, ledbrightness);
+      analogWrite(GREEN_LED, ledbrightness*-1);
       analogWrite(RED_LED, 0);
       Serial.print("compression1: ");
       Serial.print(forceC);
@@ -111,23 +87,19 @@ void read_send(HX711 load_cellX){
       analogWrite(GREEN_LED, 0);
       analogWrite(RED_LED, 0);
       Serial.println("no load detected sensor 1");
-      delay(DELAY);
     }
 }
   
-void set_calibration(HX711 load_cellX){ //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
    buttonState = digitalRead(buttonPin);
-   
-   if (buttonState == HIGH) {                   //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
-      load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
-      Serial.print("sensor readings:\t");
-      Serial.print(load_cellX.get_units(), 1);  
-      Serial.print("      ");
-      Serial.print("\t| average:\t");
-      Serial.println(load_cellX.get_units(10), 1);
-      Serial.println();
-      Serial.println();  
-   }
+   massReading = load_cellX.get_units();
+   if (buttonState == HIGH) {                                     //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
+    if ((KNOWN_WEIGHT-0.05) <= massReading <= (KNOWN_WEIGHT+0.05) || massReading == 0){
+      Serial.print("no calibration required");
+    }else if (massReading < 14.95 || massReading > 15.05){
+      SCALE == massReading / KNOWN_WEIGHT;
+    }
+   }  
 }
 
 void passiveDelay(int passiveDelayTime){
