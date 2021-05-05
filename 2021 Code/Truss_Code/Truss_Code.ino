@@ -86,7 +86,7 @@ void read_send(HX711 load_cellX){
     float forceT;
     load_cellX.set_scale(SCALE);  
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
-      ledbrightness = ((map(load_cellX.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
+      ledbrightness = map(load_cellX.get_units(), MIN_LB*-1, 0, MAP_LOW, 255); //Convert the reading from the scale into a pwm output
       forceC = load_cellX.get_units();
       analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
