@@ -32,35 +32,9 @@ void setup() {
     pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
     pinMode(GREEN_LED, OUTPUT);                      //Output for the LED lights
     pinMode(BLUE_LED, OUTPUT);                       //Output for the LED lights
-    
-    Serial.println("Before setting up the scale:");
-    Serial.print("read: \t\t");
-    Serial.println(load_cell1.read());                // print a raw reading from the ADC for scale 1
-    Serial.print("read average: \t\t");
-    Serial.println(load_cell1.read_average(5));       // print the average of 5 readings from the ADC for scale 1
-    Serial.println("test");
-    Serial.print("get value: \t\t");
-    Serial.println(load_cell1.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight (not set yet) for scale 1
-  
-    Serial.print("get units: \t\t");
-    Serial.println(load_cell1.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
-    
-    load_cell1.set_scale(2280.f);                     // this value is obtained by calibrating the scale with known weights; see the README for details
+    setupCell(load_cell1);
     load_cell1.tare();                                // reset the scale to 0 for scale 1
-    Serial.println("After setting up the scale:");
-  
-    Serial.print("read: \t\t");
-    Serial.println(load_cell1.read());                // print a raw reading from the ADC for scale 1
-  
-    Serial.print("read average: \t\t");
-    Serial.println(load_cell1.read_average(20));      // print the average of 20 readings from the ADC for scale 1
 
-    Serial.print("get value: \t\t");
-    Serial.println(load_cell1.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
-  
-    Serial.print("get units: \t\t");
-    Serial.println(load_cell1.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
-    Serial.println("Readings:");                     //Serial monitor readings
 }
 
 
@@ -71,21 +45,17 @@ void loop() {
 
 //intialize load cells 
 void setupCell(HX711 load_cellX){
-    Serial.println("Before setting up the scale:");
-    Serial.print("read: \t\t");
+    Serial.println("Begin:   ");
+    Serial.print("read raw data once: \t\t");
     Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
-    Serial.print("read average: \t\t");
+    Serial.print("average of 5 readings : \t\t");
     Serial.println(load_cellX.read_average(5));       // print the average of 5 readings from the ADC for scale 1
-    Serial.println("test");
-    Serial.print("get value: \t\t");
-    Serial.println(load_cellX.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight (not set yet) for scale 1
-  
-    Serial.print("get units: \t\t");
+    Serial.println("test before calibration");
+    Serial.print("read force: \t\t");
     Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight for scale 1
     
-    load_cellX.set_scale(2280.f);                     // this value is obtained by calibrating the scale with known weights; see the README for details
-    load_cellX.tare();                                // reset the scale to 0 for scale 1
-    Serial.println("After setting up the scale:");
+    load_cellX.set_scale(SCALE);                     // this value is obtained by calibrating the scale with known weights; see the README for details
+    Serial.println("test after calibration:");
   
     Serial.print("read: \t\t");
     Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
@@ -98,43 +68,44 @@ void setupCell(HX711 load_cellX){
   
     Serial.print("get units: \t\t");
     Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
-    Serial.println("Readings:");                     //Serial monitor readings
 }
 
 //read inputs from load cell and control LEDs accordinly 
 void read_send(HX711 load_cellX){
-    load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
-    Serial.print("sensor readings:\t");
-    Serial.print(load_cellX.get_units(), 1);  
-    Serial.print("      ");
-    Serial.print("\t| average:\t");
-    Serial.println(load_cellX.get_units(10), 1);
-    Serial.println();
-    Serial.println();
+//    load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
+//    Serial.print("sensor readings:\t");
+//    Serial.print(load_cellX.get_units(), 1);  
+//    Serial.print("      ");
+//    Serial.print("\t| average:\t");
+//    Serial.println(load_cellX.get_units(10), 1);
+//    Serial.println();
+//    Serial.println();
     
     int ledbrightness;   //Integer for the brightness of the LED lights    
     float forceC;
     float forceT;
-      
-    if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing if sensor 1 is in tension
-      ledbrightness = ((map(load_cellX.get_units(), MIN_LB, 0, MAP_LOW, 255))*-1); //Convert the reading from the scale into a pwm output
-      forceC = (((load_cellX.get_units() - MIN_LB)*(255-MAP_LOW))/((0-MIN_LB)+MAP_LOW));
+    load_cellX.set_scale(SCALE);  
+    if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
+      ledbrightness = map(load_cellX.get_units(), MIN_LB, 0, MAP_LOW, 255); //Convert the reading from the scale into a pwm output
+      forceC = load_cellX.get_units();
       analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
-      Serial.print("compression1");
-      Serial.print("      ");
+      Serial.print("compression1: ");
       Serial.print(forceC);
-      Serial.print(" lbs");
+      Serial.println(" lbs");
+      Serial.print("LED output: ");
+      Serial.print(ledbrightness);
       Serial.println(); 
-    }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for compression in sensor 1
+    }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for tension in sensor 1
       ledbrightness = map(load_cellX.get_units(), 0, MAX_LB, MAP_LOW, 255);
-      forceT = (((load_cellX.get_units() - 0)*(255-MAP_LOW))/((MAX_LB-0)+MAP_LOW));
+      forceT = load_cellX.get_units();
       analogWrite(RED_LED, ledbrightness);
       analogWrite(GREEN_LED, 0);
-      Serial.print("tension1");
-      Serial.print("      ");
+      Serial.print("tension1: ");
       Serial.print(forceT);
-      Serial.print(" lbs");
+      Serial.println(" lbs");
+      Serial.print("LED output: ");
+      Serial.print(ledbrightness);
       Serial.println(); 
     }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
       analogWrite(GREEN_LED, 0);
@@ -144,16 +115,16 @@ void read_send(HX711 load_cellX){
     }
 }
   
-void set_calibration(HX711 lc){ //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+void set_calibration(HX711 load_cellX){ //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
    buttonState = digitalRead(buttonPin);
    
    if (buttonState == HIGH) {                   //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
-      lc.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
+      load_cellX.set_scale(CALIBRATION_FACTOR);         //Adjust to this calibration factor for scale 1
       Serial.print("sensor readings:\t");
-      Serial.print(lc.get_units(), 1);  
+      Serial.print(load_cellX.get_units(), 1);  
       Serial.print("      ");
       Serial.print("\t| average:\t");
-      Serial.println(lc.get_units(10), 1);
+      Serial.println(load_cellX.get_units(10), 1);
       Serial.println();
       Serial.println();  
    }
