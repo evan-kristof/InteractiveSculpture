@@ -22,8 +22,11 @@ HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
 int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
-float massReading = 0;
-float SCALE = 19590.0;
+//float massReading = 0;
+//float SCALE = 20000.0;
+//float MIN_LB = -5.00;
+//float MAX_LB = 5.00;
+//float MAP_LOW = 0;
 
 //THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
 void setup() {
@@ -48,23 +51,25 @@ void setupCell(HX711 load_cellX){
     Serial.print("read: \t\t");
     Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
     Serial.print("read average: \t\t");
-    Serial.println(load_cellX.read_average(20));      // print the average of 20 readings from the ADC for scale 1
+    Serial.println(load_cellX.read_average(5));      // print the average of 20 readings from the ADC for scale 1
     Serial.print("get value: \t\t");
     Serial.println(load_cellX.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
     Serial.print("get units: \t\t");
-    Serial.println(load_cellX.get_units(5), 1);       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
+    Serial.println(load_cellX.get_units(5));       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
 }
 
 //read inputs from load cell and control LEDs accordinly 
 void read_send(HX711 load_cellX){
+    //float SCALE = 27470.0;
     load_cellX.set_scale(SCALE);   // this value is obtained by calibrating the scale with known weights; see the README for details
     int ledbrightness;             //Integer for the brightness of the LED lights    
     float forceC;
     float forceT;
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
-      ledbrightness = (map(load_cellX.get_units(), MIN_LB, 0, 255, MAP_LOW))*-1; //Convert the reading from the scale into a pwm output
+      
+      //ledbrightness = (map(load_cellX.get_units(), MIN_LB, 0, 255, MAP_LOW)); //Convert the reading from the scale into a pwm output
       forceC = load_cellX.get_units();
-      analogWrite(GREEN_LED, ledbrightness*-1);
+      analogWrite(GREEN_LED, ledbrightness);
       analogWrite(RED_LED, 0);
       Serial.print("compression1: ");
       Serial.print(forceC);
@@ -73,7 +78,8 @@ void read_send(HX711 load_cellX){
       Serial.print(ledbrightness);
       Serial.println(); 
     }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for tension in sensor 1
-      ledbrightness = map(load_cellX.get_units(), 0, MAX_LB, MAP_LOW, 255);
+      ledbrightness = load_cellX.get_units()*255/1.1;
+      //ledbrightness = map(load_cellX.get_units(), 0, MAX_LB, 0, 255);
       forceT = load_cellX.get_units();
       analogWrite(RED_LED, ledbrightness);
       analogWrite(GREEN_LED, 0);
@@ -89,19 +95,18 @@ void read_send(HX711 load_cellX){
       Serial.println("no load detected sensor 1");
     }
 }
-
   
-void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
-   buttonState = digitalRead(buttonPin);
-   massReading = load_cellX.get_units();
-   if (buttonState == HIGH) {                                     //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
-    if ((KNOWN_WEIGHT-0.05) <= massReading <= (KNOWN_WEIGHT+0.05) || massReading == 0){
-      Serial.print("no calibration required");
-    }else if (massReading < 14.95 || massReading > 15.05){
-      SCALE == massReading / KNOWN_WEIGHT;
-    }
-   }  
-}
+//void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+//   buttonState = digitalRead(buttonPin);
+//   massReading = load_cellX.get_units();
+//   if (buttonState == HIGH) {                                     //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
+//    if ((KNOWN_WEIGHT-0.05) <= massReading <= (KNOWN_WEIGHT+0.05) || massReading == 0){
+//      Serial.print("no calibration required");
+//    }else if (massReading < 14.95 || massReading > 15.05){
+//      SCALE == massReading / KNOWN_WEIGHT;
+//    }
+//   }  
+//}
 
 void passiveDelay(int passiveDelayTime){
   if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)

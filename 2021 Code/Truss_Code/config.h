@@ -24,24 +24,20 @@
 #define LOADCELL_DT_PIN3 7
 
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
-//#define CALIBRATION_FACTOR 9779
-//#define SCALE 19590
-
-//DELAY CODE (IN MILLISECONDS)
-#define DELAY 0 
+const float SCALE = 27470;
 
 //CALIBRATION BUTTON
 #define buttonPin 8           // the pin of the pushbutton
 #define KNOWN_WEIGHT 15       // lbs
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
-#define MIN_LB -20         //largest COMPRESSION load expected on a sensor
-#define MAX_LB 20          //largest TENSION load expected on sensor
+const float MIN_LB = -5.0;         //largest COMPRESSION load expected on a sensor
+const float MAX_LB = 5.0;          //largest TENSION load expected on sensor
 
 //MINIMUM AMOUNT OF LBS TO ACTIVATE LEDS
-#define MAP_LOW 1           //the lowest the map function will go (may help with delays)
-#define NEGATIVE_FLOOR -1    //minimum amount of force before led will activate for tension
-#define POSITIVE_FLOOR 1     //minimum amount of force before led will activate for compression
+const float MAP_LOW = 0.0;           //the lowest the map function will go (may help with delays)
+#define NEGATIVE_FLOOR -0.1    //minimum amount of force before led will activate for tension
+#define POSITIVE_FLOOR 0.1     //minimum amount of force before led will activate for compression
 
 //DEFINE PINS FOR LED
 #define RED_LED 6           //TENSION
