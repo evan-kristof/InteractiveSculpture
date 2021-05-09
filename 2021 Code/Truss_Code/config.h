@@ -27,7 +27,7 @@
 const float SCALE = 27470;
 
 //CALIBRATION BUTTON
-#define buttonPin 8           // the pin of the pushbutton
+#define buttonPin 35           // the pin of the pushbutton
 #define KNOWN_WEIGHT 15       // lbs
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
