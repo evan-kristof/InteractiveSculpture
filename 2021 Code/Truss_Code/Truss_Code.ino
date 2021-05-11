@@ -21,8 +21,9 @@ HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
 HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
-int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
-//float massReading = 0;
+int buttonState = LOW;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
+float massReading = 0;
+float SCALE = 19470;
 //float SCALE = 20000.0;
 //float MIN_LB = -5.00;
 //float MAX_LB = 5.00;
@@ -40,13 +41,13 @@ void setup() {
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 void loop() {
-    //set_calibration(load_cell1);
+    set_calibration(load_cell1);
     read_send(load_cell1);
 }
 
 //intialize load cells 
 void setupCell(HX711 load_cellX){
-    load_cellX.set_scale(SCALE);
+    //load_cellX.set_scale(SCALE);
     Serial.println("test after calibration:");
     Serial.print("read: \t\t");
     Serial.println(load_cellX.read());                // print a raw reading from the ADC for scale 1
@@ -60,13 +61,13 @@ void setupCell(HX711 load_cellX){
 
 //read inputs from load cell and control LEDs accordinly 
 void read_send(HX711 load_cellX){
-    //float SCALE = 27470.0;
+    //float SCALE = 19970.0;
     load_cellX.set_scale(SCALE);   // this value is obtained by calibrating the scale with known weights; see the README for details
     int ledbrightness;             //Integer for the brightness of the LED lights    
     float forceC;
     float forceT;
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
-      
+      ledbrightness = load_cellX.get_units()*255/MAX_LB; // ledbrightness = (get_units - in_min[0])*(225 - out_min[0]) / (in_max - in_min[0]) + out_min[0]
       //ledbrightness = (map(load_cellX.get_units(), MIN_LB, 0, 255, MAP_LOW)); //Convert the reading from the scale into a pwm output
       forceC = load_cellX.get_units();
       analogWrite(GREEN_LED, ledbrightness);
@@ -78,7 +79,7 @@ void read_send(HX711 load_cellX){
       Serial.print(ledbrightness);
       Serial.println(); 
     }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for tension in sensor 1
-      ledbrightness = load_cellX.get_units()*255/1.1;
+      ledbrightness = load_cellX.get_units()*255/MAX_LB; // ledbrightness = (get_units - in_min[0])*(225 - out_min[0]) / (in_max - in_min[0]) + out_min[0]
       //ledbrightness = map(load_cellX.get_units(), 0, MAX_LB, 0, 255);
       forceT = load_cellX.get_units();
       analogWrite(RED_LED, ledbrightness);
@@ -96,17 +97,18 @@ void read_send(HX711 load_cellX){
     }
 }
   
-//void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
-//   buttonState = digitalRead(buttonPin);
-//   massReading = load_cellX.get_units();
-//   if (buttonState == HIGH) {                                     //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
-//    if ((KNOWN_WEIGHT-0.05) <= massReading <= (KNOWN_WEIGHT+0.05) || massReading == 0){
-//      Serial.print("no calibration required");
-//    }else if (massReading < 14.95 || massReading > 15.05){
-//      SCALE == massReading / KNOWN_WEIGHT;
-//    }
-//   }  
-//}
+void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+   buttonState = digitalRead(buttonPin);
+   massReading = load_cellX.get_units();
+   float INT_FORCE = KNOWN_WEIGHT / CONFIG_FACTOR;
+   if (buttonState == HIGH) {                                     //Check if the pushbutton is pressed. If it is, the buttonState is HIGH (buttonState = 1)
+    if ((INT_FORCE-0.05) <= massReading <= (INT_FORCE+0.05) || massReading == 0){
+      Serial.println("no calibration required");
+    }else if (massReading < (INT_FORCE-0.05) || massReading > (INT_FORCE+0.05)){
+      SCALE == massReading / INT_FORCE;
+    }
+   }  
+}
 
 void passiveDelay(int passiveDelayTime){
   if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
