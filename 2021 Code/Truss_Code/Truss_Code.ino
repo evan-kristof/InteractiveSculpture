@@ -20,11 +20,14 @@
 HX711 load_cell1 (LOADCELL_DT_PIN1, LOADCELL_SCK_PIN1);
 HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
 HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
+
+//HX711 LOAD CELL CALIBRATION FACTOR 
+float SCALE = 19470; // for the larger S-type load cell SCALE should be about 19470
+
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
 int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
 float massReading;
-float SCALE = 19470;
 float INT_FORCE;
 
 //THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
@@ -38,6 +41,8 @@ void setup() {
 }
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
+// the loop function first checks if the calibration button is being pushed. if yes, it runs the set_calibration function which sets a new scale factor.
+// if the button is not being pushed it moves on to the read_send function which is the primary part of the loop function.
 void loop() {
     if (digitalRead(buttonPin) == HIGH)
     {
@@ -50,7 +55,7 @@ void loop() {
     //read_send(load_cell3);
 }
 
-//intialize load cells 
+//intialize load cells. this function is not required for operation of the load cell, it just prints out some basic info to make sure the arduino is communicating with the load cell 
 void setupCell(HX711 load_cellX){
     load_cellX.set_scale(SCALE);
     Serial.println("test after calibration:");
@@ -65,6 +70,7 @@ void setupCell(HX711 load_cellX){
 }
 
 //read inputs from load cell and control LEDs accordinly 
+//this is the code that is continuously looping and checking for tension and compression in the load cell. it does not run unless it is called by the loop function, which in this case it is always being called by the loop function
 void read_send(HX711 load_cellX){
     //float SCALE = 19970.0;
     load_cellX.set_scale(SCALE);   // this value is obtained by calibrating the scale with known weights; see the README for details
@@ -99,21 +105,26 @@ void read_send(HX711 load_cellX){
       Serial.println("no load detected sensor 1");
     }
 }
-  
+
+//set_calibration is called by the loop function when the calibration button is pushed.
+//massReading is the scaled output of the load in pounds
+//INT_FORCE is the expeceted force in pounds. this varies depending on the configuration of the truss (equilateral triangle or 45, 45, 90 triangle or 30, 60, 90 triangle)
+//CONFIG_FACTOR is set in config.h and is specific to what type of triangle the truss is arranged in
+   
 void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
    load_cellX.set_scale(SCALE);
-   buttonState = digitalRead(buttonPin);
    massReading = load_cellX.get_units();
    INT_FORCE = KNOWN_WEIGHT / CONFIG_FACTOR;
    Serial.println(massReading);                                    
    if (INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05 || massReading == 0)
    {
-    Serial.println("no calibration required");
+    Serial.println("calibration complete");
    }
    if (massReading < INT_FORCE-0.05 || massReading > INT_FORCE+0.05){
     SCALE = load_cellX.get_value() / INT_FORCE;
    }  
 }
+
 
 void passiveDelay(int passiveDelayTime){
   if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
