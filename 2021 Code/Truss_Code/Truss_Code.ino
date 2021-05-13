@@ -22,7 +22,7 @@ HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
 HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //HX711 LOAD CELL CALIBRATION FACTOR 
-float SCALE = 19470; // for the larger S-type load cell SCALE should be about 19470
+float SCALE = 19470; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
 
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
