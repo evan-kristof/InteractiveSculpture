@@ -5,7 +5,7 @@
  * Truss_Code.ino
  * 
  * DATE CREAED: 1/29/21 BY OMAR WAKED
- * DATE MODIFIED: 1/29/21 BY OMAR WAKED
+ * DATE MODIFIED: 5/13/21 BY Evan Snow
  * IMPORTANT: UPDATE THE MODIFIED DATE AND NAME ABOVE 
  * LINK TO CODE ON GITHUB: https://github.com/OmarWaked/InteractiveSculpture.git
 */
@@ -22,7 +22,7 @@ HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
 HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //HX711 LOAD CELL CALIBRATION FACTOR 
-float SCALE = 19470; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
+float SCALE = 19270; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
 
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
@@ -31,6 +31,7 @@ float massReading;
 float INT_FORCE;
 
 //THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
+
 void setup() {
     Serial.begin(9600);                              //START SERIAL MONITOR
     pinMode(RED_LED, OUTPUT);                        //Output for the LED lights
@@ -43,6 +44,7 @@ void setup() {
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 // the loop function first checks if the calibration button is being pushed. if yes, it runs the set_calibration function which sets a new scale factor.
 // if the button is not being pushed it moves on to the read_send function which is the primary part of the loop function.
+
 void loop() {
     if (digitalRead(buttonPin) == HIGH)
     {
@@ -55,7 +57,12 @@ void loop() {
     //read_send(load_cell3);
 }
 
+// Functions below here are subsidiary to the above setup() and loop() functions
+// 
+
+
 //intialize load cells. this function is not required for operation of the load cell, it just prints out some basic info to make sure the arduino is communicating with the load cell 
+//the numbers printed out 
 void setupCell(HX711 load_cellX){
     load_cellX.set_scale(SCALE);
     Serial.println("test after calibration:");
