@@ -5,7 +5,7 @@
  * Truss_Code.ino
  * 
  * DATE CREAED: 1/29/21 BY OMAR WAKED
- * DATE MODIFIED: 5/13/21 BY Evan Snow
+ * DATE MODIFIED: 5/18/21 BY Evan Snow
  * IMPORTANT: UPDATE THE MODIFIED DATE AND NAME ABOVE 
  * LINK TO CODE ON GITHUB: https://github.com/OmarWaked/InteractiveSculpture.git
 */
