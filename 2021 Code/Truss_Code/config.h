@@ -14,17 +14,20 @@
 
 //DEFINE HX711 LOAD CELL PINS
 //load cell 1
-#define LOADCELL_SCK_PIN1 2
-#define LOADCELL_DT_PIN1 3
+#define LOADCELL_SCK_PIN1 9
+#define LOADCELL_DT_PIN1 8
 //load cell 2
-#define LOADCELL_SCK_PIN2 4
-#define LOADCELL_DT_PIN2 5
+//#define LOADCELL_SCK_PIN2 4
+//#define LOADCELL_DT_PIN2 5
 //Load cell 3
-#define LOADCELL_SCK_PIN3 6
-#define LOADCELL_DT_PIN3 7
+//#define LOADCELL_SCK_PIN3 6
+//#define LOADCELL_DT_PIN3 7
 
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
 //const float SCALE = 19470;
+
+// passive delay for LCD screen
+const long passiveDelayTime = 3000;
 
 //CALIBRATION BUTTON
 #define buttonPin 52           // the pin of the pushbutton
@@ -41,9 +44,9 @@ const float MAP_LOW = 0.0;           //the lowest the map function will go (may 
 #define POSITIVE_FLOOR 0.1     //minimum amount of force before led will activate for compression
 
 //DEFINE PINS FOR LED
-#define RED_LED 6           //TENSION
-#define GREEN_LED 7         //COMPRESSION
-#define BLUE_LED 8
+#define RED_LED 10           //TENSION
+#define GREEN_LED 11         //COMPRESSION
+#define BLUE_LED 12
 
 
 #endif

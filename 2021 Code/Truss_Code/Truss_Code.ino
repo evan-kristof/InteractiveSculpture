@@ -13,16 +13,21 @@
 //IMPORT FILES REQUIRED FOR CODE IN THIS FILE TO WORK
 #include "HX711.h"
 #include "config.h"
+#include <LiquidCrystal.h>
 
 //DEFINE VARIABLES
 //load cells
 
 HX711 load_cell1 (LOADCELL_DT_PIN1, LOADCELL_SCK_PIN1);
-HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
-HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
+//HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
+//HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //HX711 LOAD CELL CALIBRATION FACTOR 
 float SCALE = 19270; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
+
+//LCD pins
+const int rs = 2, en = 3, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 //other variables
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
@@ -39,6 +44,13 @@ void setup() {
     pinMode(BLUE_LED, OUTPUT);                       //Output for the LED lights
     setupCell(load_cell1);
     load_cell1.tare();                               // reset the scale to 0 for scale 1
+
+    lcd.begin(16, 2);                                // set up the LCD's number of columns and rows:
+    lcd.print("hello, world!");                      // Print a message to the LCD.
+    delay(4000);
+    lcd.clear();
+  
+    
 }
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
@@ -48,13 +60,20 @@ void setup() {
 void loop() {
     if (digitalRead(buttonPin) == HIGH)
     {
-      set_calibration(load_cell1);
+     set_calibration(load_cell1);
       //set_calibration(load_cell2);
       //set_calibration(load_cell3);
     }
     read_send(load_cell1);
     //read_send(load_cell2);
     //read_send(load_cell3);
+
+    // set the cursor to column 0, line 1
+    // (note: line 1 is the second row, since counting begins with 0):
+    //lcd.setCursor(0, 1);
+    // print the number of seconds since reset:
+    //lcd.print(millis() / 1000);
+    
 }
 
 // Functions below here are subsidiary to the above setup() and loop() functions
@@ -111,6 +130,22 @@ void read_send(HX711 load_cellX){
       analogWrite(RED_LED, 0);
       Serial.println("no load detected sensor 1");
     }
+   if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
+    lastUpdate = millis(); //update old_time to current millis()
+//    lcd.setCursor(0, 0);
+    if (load_cellX.get_units()<NEGATIVE_FLOOR){
+      lcd.print("compression");
+      lcd.setCursor(0,1);
+      lcd.print(load_cellX.get_units());
+    }else if (load_cellX.get_units()>POSITIVE_FLOOR){
+      lcd.print("tension");
+      lcd.setCursor(0,1);
+      lcd.print(load_cellX.get_units());
+    }
+    delay(1000);
+    lcd.clear();
+    }
+
 }
 
 //set_calibration is called by the loop function when the calibration button is pushed.
@@ -133,19 +168,19 @@ void set_calibration(HX711 load_cellX){                         //Refer to this 
 }
 
 
-void passiveDelay(int passiveDelayTime){
-  if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
-    lastUpdate = millis(); //update old_time to current millis()
-  }
-}
+//void passiveDelay(long passiveDelayTime){
+//  if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
+//    lastUpdate = millis(); //update old_time to current millis()
+//  }
+//}
 
-void lcd(){
+//void lcd(){
 /* TODO:
  * Identify LCD pins & wiring
  * Setup LCD library
  * Setup LCD as an output jn the setup function
 */
-}
+//}
 
 
 /* LIBRARIES USED & TUTORIALS
