@@ -23,17 +23,12 @@ HX711 load_cell1 (LOADCELL_DT_PIN1, LOADCELL_SCK_PIN1);
 //HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //HX711 LOAD CELL CALIBRATION FACTOR 
-float SCALE = 19270; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
+float SCALE = 19270.0; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
 
 //LCD pins
 const int rs = 2, en = 3, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-//other variables
-unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
-int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
-float massReading;
-float INT_FORCE;
 
 //THIS FUNCTION WILL RUN ONCE WHEN THE ARDUINO IS POWERED UP
 
@@ -46,12 +41,10 @@ void setup() {
     load_cell1.tare();                               // reset the scale to 0 for scale 1
 
     lcd.begin(16, 2);                                // set up the LCD's number of columns and rows:
-    lcd.print("hello, world!");                      // Print a message to the LCD.
+    lcd.print("hi there :)");                      // Print a message to the LCD.
     delay(4000);
     lcd.clear();
-  
-    
-}
+    }
 
 //THIS FUNCTION WILL RUN FOREVER UNLESS INSTRUCTED TO STOP
 // the loop function first checks if the calibration button is being pushed. if yes, it runs the set_calibration function which sets a new scale factor.
@@ -67,21 +60,13 @@ void loop() {
     read_send(load_cell1);
     //read_send(load_cell2);
     //read_send(load_cell3);
-
-    // set the cursor to column 0, line 1
-    // (note: line 1 is the second row, since counting begins with 0):
-    //lcd.setCursor(0, 1);
-    // print the number of seconds since reset:
-    //lcd.print(millis() / 1000);
-    
-}
+    }
 
 // Functions below here are subsidiary to the above setup() and loop() functions
-// 
 
 
 //intialize load cells. this function is not required for operation of the load cell, it just prints out some basic info to make sure the arduino is communicating with the load cell 
-//the numbers printed out 
+//the numbers printed out are raw data from the load cell, not converted to lbs
 void setupCell(HX711 load_cellX){
     load_cellX.set_scale(SCALE);
     Serial.println("test after calibration:");
@@ -93,16 +78,16 @@ void setupCell(HX711 load_cellX){
     Serial.println(load_cellX.get_value(5));          // print the average of 5 readings from the ADC minus the tare weight, set with tare() for scale 1
     Serial.print("get units: \t\t");
     Serial.println(load_cellX.get_units(5));       // print the average of 5 readings from the ADC minus tare weight, divided by scale parameter wit set_scale
-}
+    }
 
 //read inputs from load cell and control LEDs accordinly 
 //this is the code that is continuously looping and checking for tension and compression in the load cell. it does not run unless it is called by the loop function, which in this case it is always being called by the loop function
 void read_send(HX711 load_cellX){
-    //float SCALE = 19970.0;
     load_cellX.set_scale(SCALE);   // this value is obtained by calibrating the scale with known weights; see the README for details
     int ledbrightness;             //Integer for the brightness of the LED lights    
     float forceC;
     float forceT;
+    unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
       ledbrightness = load_cellX.get_units()*255/MAX_LB; // ledbrightness = (get_units - in_min[0])*(225 - out_min[0]) / (in_max - in_min[0]) + out_min[0]
       forceC = load_cellX.get_units();
@@ -132,21 +117,27 @@ void read_send(HX711 load_cellX){
     }
    if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
     lastUpdate = millis(); //update old_time to current millis()
-//    lcd.setCursor(0, 0);
     if (load_cellX.get_units()<NEGATIVE_FLOOR){
       lcd.print("compression");
       lcd.setCursor(0,1);
       lcd.print(load_cellX.get_units());
+      lcd.setCursor(6,1);
+      lcd.print("lbs");
     }else if (load_cellX.get_units()>POSITIVE_FLOOR){
       lcd.print("tension");
       lcd.setCursor(0,1);
       lcd.print(load_cellX.get_units());
+      lcd.setCursor(6,1);
+      lcd.print("lbs");
+    }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
+      lcd.print("no load detected");
     }
-    delay(1000);
+    //lcd.print(load_cellX.get_units());
+    delay(300);
     lcd.clear();
+    
     }
-
-}
+    }
 
 //set_calibration is called by the loop function when the calibration button is pushed.
 //massReading is the scaled output of the load in pounds
@@ -154,33 +145,24 @@ void read_send(HX711 load_cellX){
 //CONFIG_FACTOR is set in config.h and is specific to what type of triangle the truss is arranged in
    
 void set_calibration(HX711 load_cellX){                         //Refer to this link for the code: https://www.instructables.com/Arduino-Scale-With-5kg-Load-Cell-and-HX711-Amplifi/
+   float massReading;
+   float INT_FORCE;
    load_cellX.set_scale(SCALE);
    massReading = load_cellX.get_units();
    INT_FORCE = KNOWN_WEIGHT / CONFIG_FACTOR;
    Serial.println(massReading);                                    
-   if (INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05 || massReading == 0)
+   if ((INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05) || (-0.05 <= massReading <= 0.05))
    {
-    Serial.println("calibration complete");
+    Serial.println("no calibration needed");
+    lcd.print("no calibration needed");
    }
    if (massReading < INT_FORCE-0.05 || massReading > INT_FORCE+0.05){
     SCALE = load_cellX.get_value() / INT_FORCE;
-   }  
-}
+    Serial.println("calibration complete");
+    lcd.print("calibration complete");
+   }
+   }
 
-
-//void passiveDelay(long passiveDelayTime){
-//  if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
-//    lastUpdate = millis(); //update old_time to current millis()
-//  }
-//}
-
-//void lcd(){
-/* TODO:
- * Identify LCD pins & wiring
- * Setup LCD library
- * Setup LCD as an output jn the setup function
-*/
-//}
 
 
 /* LIBRARIES USED & TUTORIALS

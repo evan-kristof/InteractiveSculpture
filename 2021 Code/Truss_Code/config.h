@@ -27,7 +27,7 @@
 //const float SCALE = 19470;
 
 // passive delay for LCD screen
-const long passiveDelayTime = 3000;
+const long passiveDelayTime = 2000;
 
 //CALIBRATION BUTTON
 #define buttonPin 52           // the pin of the pushbutton
@@ -40,8 +40,8 @@ const float MAX_LB = 30.0;          //largest TENSION load expected on sensor
 
 //MINIMUM AMOUNT OF LBS TO ACTIVATE LEDS
 const float MAP_LOW = 0.0;           //the lowest the map function will go (may help with delays)
-#define NEGATIVE_FLOOR -0.1    //minimum amount of force before led will activate for tension
-#define POSITIVE_FLOOR 0.1     //minimum amount of force before led will activate for compression
+float NEGATIVE_FLOOR = -0.10;    //minimum amount of force before led will activate for tension
+float POSITIVE_FLOOR = 0.10;     //minimum amount of force before led will activate for compression
 
 //DEFINE PINS FOR LED
 #define RED_LED 10           //TENSION
