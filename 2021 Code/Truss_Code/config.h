@@ -45,9 +45,9 @@ float POSITIVE_FLOOR = 0.10;     //minimum amount of force before led will activ
 
 //DEFINE PINS FOR LED
 //member for load cell 1
-#define RED_LED_1 30          //TENSION
-#define GREEN_LED_1 31        //COMPRESSION
-#define BLUE_LED_1 32
+#define RED_LED 30          //TENSION
+#define GREEN_LED 31        //COMPRESSION
+#define BLUE_LED 32
 //member for load cell 2
 #define RED_LED_2 33          //TENSION
 #define GREEN_LED_2 34        //COMPRESSION
