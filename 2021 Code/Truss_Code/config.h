@@ -14,6 +14,7 @@
 
 //DEFINE HX711 LOAD CELL PINS
 //load cell 1
+<<<<<<< Updated upstream
 #define LOADCELL_SCK_PIN1 2
 #define LOADCELL_DT_PIN1 3
 //load cell 2
@@ -22,6 +23,16 @@
 //Load cell 3
 #define LOADCELL_SCK_PIN3 6
 #define LOADCELL_DT_PIN3 7
+=======
+#define LOADCELL_SCK_PIN1 8
+#define LOADCELL_DT_PIN1 9
+//load cell 2
+#define LOADCELL_SCK_PIN2 10
+#define LOADCELL_DT_PIN2 11
+//Load cell 3
+#define LOADCELL_SCK_PIN3 13
+#define LOADCELL_DT_PIN3 12
+>>>>>>> Stashed changes
 
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
 //#define CALIBRATION_FACTOR 9779
@@ -44,9 +55,15 @@
 #define POSITIVE_FLOOR 0.1     //minimum amount of force before led will activate for compression
 
 //DEFINE PINS FOR LED
+<<<<<<< Updated upstream
 #define RED_LED 6           //TENSION
 #define GREEN_LED 7         //COMPRESSION
 #define BLUE_LED 8
+=======
+#define RED_LED 30          //TENSION
+#define GREEN_LED 31        //COMPRESSION
+#define BLUE_LED 32
+>>>>>>> Stashed changes
 
 
 #endif
