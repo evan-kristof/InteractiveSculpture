@@ -107,7 +107,7 @@ void read_send(HX711 load_cellX, String cellID){
       Serial.print("COMPRESSION: \t");
       Serial.print(forceC);
       Serial.print(" lbs");
-      Serial.print(" IN LOAD ");
+      Serial.print("\t IN LOAD ");
       Serial.print(cellID); 
       Serial.println(); 
     }else if (load_cellX.get_units() > POSITIVE_FLOOR){     //testing for tension in sensor 1
@@ -118,13 +118,13 @@ void read_send(HX711 load_cellX, String cellID){
       Serial.print("TENSION: \t");
       Serial.print(forceT);
       Serial.print(" lbs");
-      Serial.print(" IN LOAD ");
+      Serial.print("\t IN LOAD ");
       Serial.print(cellID); 
       Serial.println();
     }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
       analogWrite(GREEN_LED, 0);
       analogWrite(RED_LED, 0);
-      Serial.print("NO LOAD IN LOAD ");
+      Serial.print("\t NO LOAD IN LOAD ");
       Serial.print(cellID);
       Serial.println();
     }    
