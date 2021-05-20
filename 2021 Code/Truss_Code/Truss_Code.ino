@@ -190,6 +190,12 @@ void updateLCD(HX711 load_cellX){
 }
 
 
+
+/*TO DO:
+  1. FIX LED (NEED TO UPDATE CORRECT LEDS ACCORDING TO STRAIN GAUGE READING
+  2. FIX LCD -> OPTIMIZE READING ON LCD TO DISPLAY READINGS FOR THREE MEMBERS
+*/
+
 /* LIBRARIES USED & TUTORIALS
  * 
  *  HX711: https://www.arduino.cc/reference/en/libraries/hx711-arduino-library/
