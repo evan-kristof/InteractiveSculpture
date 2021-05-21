@@ -156,7 +156,7 @@ void set_calibration(HX711 load_cellX){                         //Refer to this 
     Serial.println("no calibration needed");
     lcd.print("no calibration needed");
    }
-   if (massReading < INT_FORCE-0.05 || massReading > INT_FORCE+0.05){
+   else if (massReading < INT_FORCE-0.05 || massReading > INT_FORCE+0.05){
     SCALE = load_cellX.get_value() / INT_FORCE;
     Serial.println("calibration complete");
     lcd.print("calibration complete");
