@@ -31,8 +31,8 @@ const long passiveDelayTime = 2000;
 
 //CALIBRATION BUTTON
 #define buttonPin 52           // the pin of the pushbutton
-const float KNOWN_WEIGHT = 15;       // lbs
-const float CONFIG_FACTOR = 1.00; // 60-60-60 triangle: CONFIG_FACTOR = 1.73, 45-45-90 triangle: CONFIG_FACTOR = ..., 30-60-90 triangle: CONFIG_FACTOR = ....
+const float KNOWN_WEIGHT = 0.2969;       // lbs
+const float CONFIG_FACTOR = 1.73; // 60-60-60 triangle: CONFIG_FACTOR = 1.73, 45-45-90 triangle: CONFIG_FACTOR = ..., 30-60-90 triangle: CONFIG_FACTOR = ....
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
 const float MIN_LB = -30.0;         //largest COMPRESSION load expected on a sensor
@@ -45,9 +45,9 @@ float POSITIVE_FLOOR = 0.10;     //minimum amount of force before led will activ
 
 //DEFINE PINS FOR LED
 //member for load cell 1
-#define RED_LED_1 30          //TENSION
-#define GREEN_LED_1 31        //COMPRESSION
-#define BLUE_LED_1 32
+#define RED_LED 30          //TENSION
+#define GREEN_LED 31        //COMPRESSION
+#define BLUE_LED 32
 //member for load cell 2
 #define RED_LED_2 33          //TENSION
 #define GREEN_LED_2 34        //COMPRESSION

@@ -23,7 +23,7 @@ HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
 HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //other variables
-float SCALE = 19270.0; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
+float SCALE = 27470.0; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
 unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
 int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
 float massReading = 0;
@@ -146,7 +146,7 @@ void set_calibration(HX711 load_cellX){
    
    String message;                                  
    
-   if ((INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05) || (-0.05 <= massReading <= 0.05)){
+   if (((INT_FORCE-0.05) <= massReading && massReading <= (INT_FORCE+0.05)) || ((-0.05 <= massReading) && (massReading <= 0.05))){
     message = "no calibration needed";
     Serial.println(message);
     lcd.print(message);
