@@ -149,14 +149,13 @@ void set_calibration(HX711 load_cellX){                         //Refer to this 
    float INT_FORCE;
    load_cellX.set_scale(SCALE);
    massReading = load_cellX.get_units();
-   INT_FORCE = KNOWN_WEIGHT / CONFIG_FACTOR;
-   Serial.println(massReading);                                    
-   if ((INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05) || (-0.05 <= massReading <= 0.05))
+   INT_FORCE = KNOWN_WEIGHT / CONFIG_FACTOR;                                   
+   if ((INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05) | (-0.05 <= massReading <= 0.05))
    {
     Serial.println("no calibration needed");
     lcd.print("no calibration needed");
    }
-   else if (massReading < INT_FORCE-0.05 || massReading > INT_FORCE+0.05){
+   else if (massReading < INT_FORCE-0.05 | massReading > INT_FORCE+0.05){
     SCALE = load_cellX.get_value() / INT_FORCE;
     Serial.println("calibration complete");
     lcd.print("calibration complete");

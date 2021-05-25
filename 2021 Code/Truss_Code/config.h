@@ -31,7 +31,7 @@ const long passiveDelayTime = 2000;
 
 //CALIBRATION BUTTON
 #define buttonPin 52           // the pin of the pushbutton
-const float KNOWN_WEIGHT = 15;       // lbs
+const float KNOWN_WEIGHT = 15.0;       // lbs
 const float CONFIG_FACTOR = 1.00; // 60-60-60 triangle: CONFIG_FACTOR = 1.73, 45-45-90 triangle: CONFIG_FACTOR = ..., 30-60-90 triangle: CONFIG_FACTOR = ....
 
 //ESTIMATED MAX & MIN LOADINGS ON LOAD CELL IN LBS
