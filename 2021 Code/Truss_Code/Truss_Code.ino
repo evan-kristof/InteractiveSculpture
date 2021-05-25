@@ -19,8 +19,8 @@
 //load cells
 
 HX711 load_cell1 (LOADCELL_DT_PIN1, LOADCELL_SCK_PIN1);
-HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
-HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
+//HX711 load_cell2 (LOADCELL_DT_PIN2, LOADCELL_SCK_PIN2);
+//HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //other variables
 float SCALE = 19270.0; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
@@ -44,8 +44,8 @@ void setup() {
     
     setupCell(load_cell1, "CELL1");
     load_cell1.tare();                               // reset the scale to 0 for scale 1
-    setupCell(load_cell2, "CELL2");
-    load_cell2.tare();                               // reset the scale to 0 for scale 1
+//    setupCell(load_cell2, "CELL2");
+//    load_cell2.tare();                               // reset the scale to 0 for scale 1
 //    setupCell(load_cell3, "CELL3");
 //    load_cell3.tare();                               // reset the scale to 0 for scale 1
     
@@ -57,13 +57,14 @@ void setup() {
 // if the button is not being pushed it moves on to the read_send function which is the primary part of the loop function.
 
 void loop() {
+  Serial.println(SCALE);
   read_send(load_cell1, "CELL1");
-  read_send(load_cell2, "CELL2");
+//  read_send(load_cell2, "CELL2");
 //  read_send(load_cell3, "CELL3");
     
   if (digitalRead(buttonPin) == HIGH){
    set_calibration(load_cell1);
-   set_calibration(load_cell2);
+//   set_calibration(load_cell2);
 //   set_calibration(load_cell3);
   }
 }
@@ -98,7 +99,7 @@ void read_send(HX711 load_cellX, String cellID){
     int ledbrightness;             //Integer for the brightness of the LED lights    
     float forceC;
     float forceT;
-
+    Serial.println(SCALE);
     if (load_cellX.get_units() < NEGATIVE_FLOOR){     // testing for compression in sensor
       ledbrightness = load_cellX.get_units()*255/MAX_LB; // ledbrightness = (get_units - in_min[0])*(225 - out_min[0]) / (in_max - in_min[0]) + out_min[0]
       forceC = load_cellX.get_units();
@@ -146,7 +147,7 @@ void set_calibration(HX711 load_cellX){
    
    String message;                                  
    
-   if ((INT_FORCE-0.05 <= massReading <= INT_FORCE+0.05) || (-0.05 <= massReading <= 0.05)){
+   if (((INT_FORCE-0.05) <= massReading && massReading <= (INT_FORCE+0.05)) || ((-0.05 <= massReading) && (massReading <= 0.05))){
     message = "no calibration needed";
     Serial.println(message);
     lcd.print(message);
