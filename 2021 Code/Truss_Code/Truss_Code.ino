@@ -128,7 +128,7 @@ void read_send(HX711 load_cellX, String cellID){
       Serial.print(cellID);
       Serial.println();
     }    
-    updateLCD(load_cellX);
+    updateLCD(load_cellX,cellID);
 }
 
 //set_calibration is called by the loop function when the calibration button is pushed.
@@ -165,36 +165,60 @@ void setupLCD(){
   lcd.clear();
 }
 
-void updateLCD(HX711 load_cellX){
+void updateLCD(HX711 load_cellX, String cellID){
+  //With current LCD, we have 2 rows, 16 columns. To make the readout on the LCD easy to comprehend and not cluttered, we will utilize 1 row per strain gauge. The current setup will allow us to have 2 readouts, the top row being strain gauge 1 and row 2 being strain gauge 2.
+  //Convention for readout: "C" for compression, "T" for tension. Units of pounds "lb". "SG" for strain gauge
+  //Printout for compression in gauge 1 will then be "SG1 |C|-15.00lbs", etc.
+  //For future developments, a different LCD screen will be needed if the loads were to be printedout to a centralized LCD. Alternatively, a smaller LCD (i.e. 1 row, 15 columns) can be integrated in each truss member and have it's own reading.
+
+  //Aside from verifying the loadings, the code below updates the appropriate row for the stain gauge data (row 1 -> strain gauge 1, etc.) 
   if(millis() - lastUpdate >= passiveDelayTime){ //Check if timer is equal to or later than the collection time variable in config.h (in milliseconds)
     lastUpdate = millis(); //update old_time to current millis()
     if (load_cellX.get_units()<NEGATIVE_FLOOR){
-      lcd.print("COMPRESSION");
-      lcd.setCursor(0,1);
-      lcd.print(load_cellX.get_units());
-      lcd.setCursor(6,1);
-      lcd.print("LBS");
+      if (cellID ==  "CELL1"){
+        lcd.print("SG1");
+        lcd.setCursor(4,0);
+        lcd.print("|C|");
+        lcd.setCursor(8,0);
+        lcd.print(load_cellX.get_units());
+        lcd.setCursor(14,0);
+        lcd.print("lb");
+      }else if (cellID ==  "CELL2"){
+        lcd.print("SG2");
+        lcd.setCursor(4,0);
+        lcd.print("|C|");
+        lcd.setCursor(8,0);
+        lcd.print(load_cellX.get_units());
+        lcd.setCursor(14,0);
+        lcd.print("lb");
+      }
     }else if (load_cellX.get_units()>POSITIVE_FLOOR){
-      lcd.print("TENSION");
-      lcd.setCursor(0,1);
-      lcd.print(load_cellX.get_units());
-      lcd.setCursor(6,1);
-      lcd.print("LBS");
+      if (cellID ==  "CELL1"){
+        lcd.print("SG1");
+        lcd.setCursor(4,0);
+        lcd.print("|T|");
+        lcd.setCursor(8,0);
+        lcd.print(load_cellX.get_units());
+        lcd.setCursor(14,0);
+        lcd.print("lb");
+      }else if (cellID ==  "CELL2"){
+        lcd.print("SG2");
+        lcd.setCursor(4,0);
+        lcd.print("|T|");
+        lcd.setCursor(8,0);
+        lcd.print(load_cellX.get_units());
+        lcd.setCursor(14,0);
+        lcd.print("lb");
+      }
     }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
       lcd.print("NO LOAD");
     }
     //lcd.print(load_cellX.get_units());
-    delay(300);
+    delay(3000);
     lcd.clear();
   }
 }
 
-
-
-/*TO DO:
-  1. FIX LED (NEED TO UPDATE CORRECT LEDS ACCORDING TO STRAIN GAUGE READING
-  2. FIX LCD -> OPTIMIZE READING ON LCD TO DISPLAY READINGS FOR THREE MEMBERS
-*/
 
 /* LIBRARIES USED & TUTORIALS
  * 
