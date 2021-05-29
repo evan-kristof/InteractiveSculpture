@@ -24,7 +24,7 @@ HX711 load_cell3 (LOADCELL_DT_PIN3, LOADCELL_SCK_PIN3);
 
 //other variables
 float SCALE = 27470.0; // for the larger S-type load cell SCALE should be about 19470, for smaller round load cell SCALE should be about 27470
-unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time)
+unsigned long lastUpdate = 0; //passive delay (keeps track of elapsed time) in milliseconds
 int buttonState = 0;   // variable for reading the pushbutton status (0 = button not pressed, 1 = button pressed)
 float massReading = 0;
 //float SCALE = 20000.0;
@@ -163,6 +163,10 @@ void setupLCD(){
   lcd.print("hi there :)");                      // Print a message to the LCD.
   delay(4000);
   lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("SG1");
+  lcd.setCursor(0,1);
+  lcd.print("SG2");
 }
 
 void updateLCD(HX711 load_cellX, String cellID){
@@ -176,49 +180,50 @@ void updateLCD(HX711 load_cellX, String cellID){
     lastUpdate = millis(); //update old_time to current millis()
     if (load_cellX.get_units()<NEGATIVE_FLOOR){
       if (cellID ==  "CELL1"){
-        lcd.print("SG1");
-        lcd.setCursor(4,0);
-        lcd.print("|C|");
-        lcd.setCursor(8,0);
-        lcd.print(load_cellX.get_units());
-        lcd.setCursor(14,0);
-        lcd.print("lb");
+        lcdText(0, 4, "|C|", 8, load_cellX.get_units(), 14, "lb");
       }else if (cellID ==  "CELL2"){
-        lcd.print("SG2");
-        lcd.setCursor(4,0);
-        lcd.print("|C|");
-        lcd.setCursor(8,0);
-        lcd.print(load_cellX.get_units());
-        lcd.setCursor(14,0);
-        lcd.print("lb");
+        lcdText(1, 4, "|C|", 8, load_cellX.get_units(), 14, "lb");
       }
     }else if (load_cellX.get_units()>POSITIVE_FLOOR){
       if (cellID ==  "CELL1"){
-        lcd.print("SG1");
-        lcd.setCursor(4,0);
-        lcd.print("|T|");
-        lcd.setCursor(8,0);
-        lcd.print(load_cellX.get_units());
-        lcd.setCursor(14,0);
-        lcd.print("lb");
+        lcdText(0, 4, "|T|", 8, load_cellX.get_units(), 14, "lb");
       }else if (cellID ==  "CELL2"){
-        lcd.print("SG2");
-        lcd.setCursor(4,0);
-        lcd.print("|T|");
-        lcd.setCursor(8,0);
-        lcd.print(load_cellX.get_units());
-        lcd.setCursor(14,0);
-        lcd.print("lb");
+        lcdText(1, 4, "|T|", 8, load_cellX.get_units(), 14, "lb");
       }
     }else if (NEGATIVE_FLOOR <= load_cellX.get_units() <= POSITIVE_FLOOR){
-      lcd.print("NO LOAD");
+      if (cellID ==  "CELL1"){
+        lcdText(0, 4, "|NO LOAD|", 8, 0.0, 14, "");
+      }else if (cellID ==  "CELL2"){
+         lcdText(1, 4, "|NO LOAD|", 8, 0.0, 14, "");
+      }
     }
-    //lcd.print(load_cellX.get_units());
-    delay(3000);
-    lcd.clear();
+    //lcd.print(load_cellX.get_units())
+    delay(500);
+    //Overwrite the old T/C & loading, keep the SG designation per row
+    lcd.setCursor(4,0);
+    lcd.print("");
+    lcd.setCursor(4,1);
+    lcd.print("");
   }
 }
 
+void lcdText(int Row, int Column1, String Force, int Column2, double Load, int Column3, String Units){
+  if (Load == 0.0){
+    lcd.setCursor(Column1,Row);
+    lcd.print(Force);
+    lcd.setCursor(Column2,Row);
+    lcd.print("");
+    lcd.setCursor(Column3,Row);
+    lcd.print(Units);
+  }else{
+    lcd.setCursor(Column1,Row);
+    lcd.print(Force);
+    lcd.setCursor(Column2,Row);
+    lcd.print(Load);
+    lcd.setCursor(Column3,Row);
+    lcd.print(Units);
+  }
+}
 
 /* LIBRARIES USED & TUTORIALS
  * 

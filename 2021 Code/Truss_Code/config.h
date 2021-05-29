@@ -26,8 +26,8 @@
 //HX711 LOAD CELL CALIBRATION FACTOR (Note: -7050 worked for 440lb max scale setup. Used -3050 previously)
 //const float SCALE = 19470;
 
-// passive delay for LCD screen
-const long passiveDelayTime = 2000;
+// passive delay for LCD screen in milliseconds
+const long passiveDelayTime = 0;
 
 //CALIBRATION BUTTON
 #define buttonPin 52           // the pin of the pushbutton
