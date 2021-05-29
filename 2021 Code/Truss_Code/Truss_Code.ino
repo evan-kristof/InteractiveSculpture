@@ -197,7 +197,6 @@ void updateLCD(HX711 load_cellX, String cellID){
          lcdText(1, 4, "|NO LOAD|", 8, 0.0, 14, "");
       }
     }
-    //lcd.print(load_cellX.get_units())
     delay(500);
     //Overwrite the old T/C & loading, keep the SG designation per row
     lcd.setCursor(4,0);
